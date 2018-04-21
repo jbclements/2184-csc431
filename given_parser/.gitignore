@@ -1,0 +1,10 @@
+*.class
+Mini.tokens
+MiniBaseListener.java
+MiniBaseVisitor.java
+MiniLexer.java
+MiniLexer.tokens
+MiniListener.java
+MiniParser.java
+MiniVisitor.java
+antlr.generated
