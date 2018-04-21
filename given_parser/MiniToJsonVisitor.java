@@ -62,7 +62,7 @@ public class MiniToJsonVisitor
          .build();
    }
 
-   @Override
+   
    public JsonValue visitIntType(MiniParser.IntTypeContext ctx)
    {
       JsonArrayBuilder abuilder = factory.createArrayBuilder();
@@ -92,6 +92,31 @@ public class MiniToJsonVisitor
       return abuilder.build().getJsonString(0);
    }
 
+  @Override
+  public JsonValue visitFunctionType(MiniParser.FunctionTypeContext ctx)
+  {
+
+    return factory.createObjectBuilder()
+         .add("argTys", visit(ctx.argtypes()))
+         .add("resultTy", visit(ctx.type()))
+         .build();
+  }
+
+  /*         .add("")
+         .add("line", ctx.getStart().getLine())
+         .add("id", ctx.ID().getText())
+         .add("fields", visit(ctx.nestedDecl()))
+         .build();
+
+    JsonArrayBuilder abuilder = factory.createArrayBuilder();
+
+    for (MiniParser.TypeContext tctx : ctx.types())
+    {
+      addTypesTo(tctx, abuilder);
+    }
+
+    
+*/
    @Override
    public JsonValue visitDeclarations(MiniParser.DeclarationsContext ctx)
    {
