@@ -1,0 +1,6 @@
+fun main () (int int -> int) {
+  fun inner (int a, int b) int {
+    return 9;
+  }
+  return inner;
+}
