@@ -97,7 +97,7 @@ public class MiniToJsonVisitor
   {
 
     return factory.createObjectBuilder()
-         .add("argTys", visit(ctx.argtypes()))
+         .add("argTys", visit(ctx.argTypes()))
          .add("resultTy", visit(ctx.type()))
          .build();
   }
@@ -117,6 +117,19 @@ public class MiniToJsonVisitor
 
     
 */
+   @Override
+   public JsonValue visitArgTypes(MiniParser.ArgTypesContext ctx)
+   {
+     JsonArrayBuilder abuilder = factory.createArrayBuilder();
+
+     for (MiniParser.TypeContext tctx : ctx.type())
+     {
+       abuilder.add(visit(tctx));
+     }
+
+     return abuilder.build();
+   }
+
    @Override
    public JsonValue visitDeclarations(MiniParser.DeclarationsContext ctx)
    {

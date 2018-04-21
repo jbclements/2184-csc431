@@ -29,9 +29,9 @@ type
    :  'int'                       # IntType
    |  'bool'                      # BoolType
    |  'struct' ID                 # StructType
-   |  '(' argtypes '->' type ')'   # FunctionType
+   |  '(' argTypes '->' type ')'   # FunctionType
    ;
-argtypes
+argTypes
    :  (type)*
    ;
 declarations
