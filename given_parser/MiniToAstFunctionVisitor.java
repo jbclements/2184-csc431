@@ -22,6 +22,7 @@ public class MiniToAstFunctionVisitor
          ctx.ID().getText(),
          gatherParameters(ctx.parameters()),
          typeVisitor.visit(ctx.returnType()),
+         gatherFunctions(ctx.functions()),
          declarationsVisitor.visit(ctx.declarations()),
          statementVisitor.visit(ctx.statementList()));
    }
@@ -40,11 +41,24 @@ public class MiniToAstFunctionVisitor
       return params;
    }
 
+  private List<Function> gatherFunctions(MiniParser.FunctionsContext ctx)
+   {
+      List<Function> funcs = new ArrayList<>();
+
+      for (MiniParser.FunctionContext fctx : ctx.function())
+      {
+         funcs.add(visit(fctx));
+      }
+
+      return funcs;
+   }
+
+
    @Override
    protected Function defaultResult()
    {
       return new Function(-1, "invalid", new ArrayList<>(),
-         new VoidType(), new ArrayList<>(),
+         new VoidType(), new ArrayList<>(), new ArrayList<>(),
          BlockStatement.emptyBlock());
    }
 }

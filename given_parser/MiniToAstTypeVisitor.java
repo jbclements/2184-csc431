@@ -1,9 +1,11 @@
+import java.util.List;
+import java.util.ArrayList;
 import ast.*;
 
 public class MiniToAstTypeVisitor
    extends MiniBaseVisitor<Type>
 {
-   @Override
+  @Override
    public Type visitIntType(MiniParser.IntTypeContext ctx)
    {
       return new IntType();
@@ -19,6 +21,26 @@ public class MiniToAstTypeVisitor
    public Type visitStructType(MiniParser.StructTypeContext ctx)
    {
       return new StructType(ctx.getStart().getLine(), ctx.ID().getText());
+   }
+
+   @Override
+   public Type visitFunctionType(MiniParser.FunctionTypeContext ctx)
+   { 
+     return new FunctionType(ctx.getStart().getLine(),
+                             collectTypes(ctx.argTypes()),
+                             visit(ctx.type()));
+   }
+
+   private List<Type> collectTypes(MiniParser.ArgTypesContext ctx)
+   {
+     List<Type> types = new ArrayList<>();
+
+     for (MiniParser.TypeContext tctx : ctx.type())
+     {
+       types.add(visit(tctx));
+     }
+
+     return types;
    }
 
    @Override
