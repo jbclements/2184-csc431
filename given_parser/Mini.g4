@@ -26,9 +26,13 @@ decl
    :  type ID
    ;
 type
-   :  'int'             # IntType
-   |  'bool'            # BoolType
-   |  'struct' ID       # StructType
+   :  'int'                       # IntType
+   |  'bool'                      # BoolType
+   |  'struct' ID                 # StructType
+   |  '(' argtypes '->' type ')'   # FunctionType
+   ;
+argtypes
+   :  (type)*
    ;
 declarations
    :  (declaration)*
@@ -40,7 +44,7 @@ functions
    :  function*
    ;
 function
-   :  'fun' ID parameters returnType '{' declarations statementList '}'
+   :  'fun' ID parameters returnType '{' functions declarations statementList '}'
    ;
 parameters
    :  '(' (decl (',' decl)*)? ')'
