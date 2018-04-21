@@ -44,7 +44,7 @@ functions
    :  function*
    ;
 function
-   :  'fun' ID parameters returnType '{' functions declarations statementList '}'
+   :  'fun' ID parameters returnType '{' declarations functions statementList '}'
    ;
 parameters
    :  '(' (decl (',' decl)*)? ')'

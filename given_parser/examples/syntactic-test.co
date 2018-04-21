@@ -1,0 +1,25 @@
+fun abc (int x, (int -> int) y, (-> (-> int)) oeu) (bool -> bool) {
+  main();
+}
+
+fun main () int {
+  int a,b  , c, d;
+  int g, h;
+  fun i1() bool {
+    if (x < 14 && z > (-y) + 444) {
+      {c = 12;
+       a(4);}
+      d = c+1;
+    } else {
+      if (y + 9 > 2) {
+        return 9;
+      }
+      d = d*423;
+    }
+    return c+d;
+  }
+  fun b() (int -> int) {
+    return b(4);
+  }
+  return i1(b);
+}
