@@ -1,0 +1,3 @@
+fun main () int { return true && true && true && true; }
+
+fun z () int {return 3 == 4 == 5 == 6;}
