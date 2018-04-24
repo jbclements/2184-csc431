@@ -1,8 +1,8 @@
 include apt
 
-class { 'apt':
- always_apt_update => true,
-}
+#class { 'apt':
+# always_apt_update => true,
+#}
 
 apt::ppa { 'ppa:plt/racket':}
 
