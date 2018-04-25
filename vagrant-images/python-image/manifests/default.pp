@@ -1,8 +1,6 @@
-include apt
-
-#class { 'apt':
-# always_apt_update => true,
-#}
+class { 'java':
+  distribution => 'jre',
+}
 
 package { "python3.6":
   ensure => 'installed',
