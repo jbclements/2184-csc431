@@ -1,0 +1,15 @@
+class { 'java':
+  distribution => 'jre',
+}
+
+package { "smlnj":
+  ensure => 'installed',
+}
+
+package { "clang" :
+  ensure => 'installed',
+}
+
+package { "nasm":
+  ensure => 'installed',
+}
