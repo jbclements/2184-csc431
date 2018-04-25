@@ -4,14 +4,11 @@ include apt
 # always_apt_update => true,
 #}
 
-apt::ppa { 'ppa:plt/racket':}
-
-package { "racket":
+package { "python3.6":
   ensure => 'installed',
-  require => Apt::Ppa['ppa:plt/racket'],
 }
 
-package { "clang" :
+package { "clang":
   ensure => 'installed',
 }
 
