@@ -1,20 +1,26 @@
 include apt
 
-#class { 'apt':
-# always_apt_update => true,
-#}
-
-apt::ppa { 'ppa:plt/racket':}
+apt::ppa { "ppa:plt/racket":
+}
 
 package { "racket":
   ensure => 'installed',
   require => Apt::Ppa['ppa:plt/racket'],
 }
 
-package { "clang" :
+class { "java":
+  distribution => 'jre',
+}
+
+package { "clang":
   ensure => 'installed',
 }
 
 package { "nasm":
   ensure => 'installed',
 }
+
+package { "gcc-multilib":
+  ensure => 'installed',
+}
+

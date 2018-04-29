@@ -1,5 +1,9 @@
-class { 'java':
+class { "java":
   distribution => 'jre',
+}
+
+package { "nodejs":
+  ensure => 'installed',
 }
 
 package { "clang":
@@ -10,10 +14,7 @@ package { "nasm":
   ensure => 'installed',
 }
 
-package { "python3.6":
+package { "gcc-multilib":
   ensure => 'installed',
 }
 
-package { "nodejs":
-  ensure => 'installed',
-}

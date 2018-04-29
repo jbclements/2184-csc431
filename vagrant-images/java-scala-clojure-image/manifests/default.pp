@@ -1,6 +1,10 @@
 include java
 
-package { "clang" :
+package { "ant":
+  ensure => 'installed',
+}
+
+package { "clang":
   ensure => 'installed',
 }
 
@@ -8,6 +12,7 @@ package { "nasm":
   ensure => 'installed',
 }
 
-package { "ant":
+package { "gcc-multilib":
   ensure => 'installed',
 }
+
