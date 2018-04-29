@@ -75,7 +75,8 @@
      (,(include 'java) ,(package-require 'ant)))
     ("js-image"     (,java-runtime-decl ,(package-require 'nodejs)))
     ("python-image" (,java-runtime-decl ,(package-require 'python3.6)))
-    ("sml-image"    (,java-runtime-decl ,(package-require 'smlnj)))))
+    ("sml-image"    (,java-runtime-decl ,(package-require 'smlnj)))
+    ("ghc-image"    (,java-runtime-decl ,(package-require 'ghc)))))
 
 (for ([pr (in-list vms)])
   (match-define (list name clauses) pr)
