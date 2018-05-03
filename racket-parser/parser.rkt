@@ -188,6 +188,7 @@
             (list 'var (string->symbol $1))
             $3)]
      [(INTLIT) $1]
+     [(BOOL-LIT) $1]
      [(expr PLUS expr)   (list 'op '+ $1 $3)]
      [(expr TIMES expr)  (list 'op '* $1 $3)]
      [(expr MINUS expr)  (list 'op '- $1 $3)]
