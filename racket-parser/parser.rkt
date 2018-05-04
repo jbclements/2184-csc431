@@ -37,6 +37,8 @@
 ;; here's the lexer:
 (define consieuten-lexer
   (lexer-src-pos
+   [(:: "#" (:* (:~ "\n")))
+    (return-without-pos (consieuten-lexer input-port))]
    [(:+ whitespace) (return-without-pos (consieuten-lexer input-port))]
    [(:or
      (:: (char-range "1" "9") (:* (char-range "0" "9")))
@@ -118,7 +120,8 @@
     (left EQUALS NOT-EQUALS)
     (left GT GEQ LT LEQ)
     (left PLUS MINUS)
-    (left TIMES DIVIDE))
+    (left TIMES DIVIDE)
+    (nonassoc NOT))
 
    (grammar
     [prog
@@ -188,6 +191,7 @@
             (list 'var (string->symbol $1))
             $3)]
      [(INTLIT) $1]
+     [(BOOL-LIT) $1]
      [(expr PLUS expr)   (list 'op '+ $1 $3)]
      [(expr TIMES expr)  (list 'op '* $1 $3)]
      [(expr MINUS expr)  (list 'op '- $1 $3)]
@@ -202,6 +206,7 @@
      [(expr NOT-EQUALS expr) (list 'op 'neq $1 $3)]
 
      [(MINUS expr) (list 'unop '- $2)]
+     [(NOT expr) (list 'unop 'not $2)]
 
      [(expr AND expr) (list 'op 'and $1 $3)]
      [(expr OR expr)  (list 'op 'or $1 $3)]
@@ -364,7 +369,7 @@ ab
   
   (check-equal?
    (string->tree "fun main() int {
-  int x, z, oth1;
+  int x, z, oth1; # this is a commont... oops comment
   y=34;
   return y+(k*4);
 }")
@@ -380,6 +385,13 @@ ab
 }")
      '((function main () int () ()
                  ((return-expr (op / 3 4))))))
+
+    (check-equal?
+     (string->tree "fun main() int {
+  return true && !false;
+}")
+     '((function main () int () ()
+                 ((return-expr (op and #t (unop not #f)))))))
 
     (check-equal?
      (string->tree test-file-string)
