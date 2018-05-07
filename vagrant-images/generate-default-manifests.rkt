@@ -1,6 +1,11 @@
 #lang racket
 
-;; this file generates the default.pp manifest for each configuration
+(require racket/runtime-path)
+
+;; this file generates the default.pp manifest for each configuration,
+;; and copies the Vagrantfile into each one
+
+(define-runtime-path here ".")
 
 ;; a declaration has a kind[symbol], a name [string], and a list of
 ;; interior lines [(Listof (List Symbol String))]
@@ -23,7 +28,8 @@
 (define (write-manifest subdir clauses)
   (define full-clauses
     (append clauses common-package-decls))
-  (call-with-output-file (build-path subdir
+  (call-with-output-file (build-path here
+                                     subdir
                                      "manifests/default.pp") 
     #:exists 'truncate
     (λ (port)
@@ -83,10 +89,17 @@
     ("python-image" ,(list java-jdk-decl
                            (package-require 'python3.6)))
     ("sml-image"    (,java-runtime-decl ,(package-require 'smlnj)))
-    ("ghc-image"    (,java-runtime-decl ,(package-require 'ghc)))))
+    ("ghc-image"    (,java-runtime-decl ,(package-require 'haskell-platform)))))
+
+;; given a subdirectory name, copy the Vagrantfile into it
+(define (copy-vagrantfile subdir)
+  (copy-file (build-path here "Vagrantfile")
+             (build-path here subdir "Vagrantfile")
+             #t))
 
 (for ([pr (in-list vms)])
   (match-define (list name clauses) pr)
+  (copy-vagrantfile (first pr))
   (write-manifest (first pr) (second pr)))
 
 

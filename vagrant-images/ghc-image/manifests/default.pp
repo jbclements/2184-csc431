@@ -2,7 +2,7 @@ class { "java":
   distribution => 'jre',
 }
 
-package { "ghc":
+package { "haskell-platform":
   ensure => 'installed',
 }
 
