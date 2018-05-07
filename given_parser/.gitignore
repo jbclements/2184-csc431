@@ -8,6 +8,5 @@ MiniListener.java
 MiniParser.java
 MiniVisitor.java
 antlr.generated
-antlr-4.7.1-complete.jar
 Mini.interp
 MiniLexer.interp

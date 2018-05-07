@@ -24,3 +24,7 @@ package { "gcc-multilib":
   ensure => 'installed',
 }
 
+package { "make":
+  ensure => 'installed',
+}
+

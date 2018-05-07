@@ -55,8 +55,12 @@
 (define java-runtime-decl
   (decl 'class 'java '((distribution "'jre'"))))
 
+;; the decl for the whole java jdk
+(define java-jdk-decl
+  (include 'java))
+
 ;; the packages required on all vms
-(define common-packages '(clang nasm gcc-multilib))
+(define common-packages '(clang nasm gcc-multilib make))
 
 ;; the decls required on all vms
 (define common-package-decls
@@ -72,9 +76,12 @@
       ,java-runtime-decl))
     ("c-c++-image" (,java-runtime-decl))
     ("java-scala-clojure-image"
-     (,(include 'java) ,(package-require 'ant)))
+     ,(list java-jdk-decl
+            (package-require 'ant)
+            (package-require 'scala)))
     ("js-image"     (,java-runtime-decl ,(package-require 'nodejs)))
-    ("python-image" (,java-runtime-decl ,(package-require 'python3.6)))
+    ("python-image" ,(list java-jdk-decl
+                           (package-require 'python3.6)))
     ("sml-image"    (,java-runtime-decl ,(package-require 'smlnj)))
     ("ghc-image"    (,java-runtime-decl ,(package-require 'ghc)))))
 

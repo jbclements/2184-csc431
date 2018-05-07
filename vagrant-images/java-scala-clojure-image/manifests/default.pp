@@ -4,6 +4,10 @@ package { "ant":
   ensure => 'installed',
 }
 
+package { "scala":
+  ensure => 'installed',
+}
+
 package { "clang":
   ensure => 'installed',
 }
@@ -13,6 +17,10 @@ package { "nasm":
 }
 
 package { "gcc-multilib":
+  ensure => 'installed',
+}
+
+package { "make":
   ensure => 'installed',
 }
 

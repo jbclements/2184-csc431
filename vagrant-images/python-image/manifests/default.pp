@@ -1,6 +1,4 @@
-class { "java":
-  distribution => 'jre',
-}
+include java
 
 package { "python3.6":
   ensure => 'installed',
@@ -15,6 +13,10 @@ package { "nasm":
 }
 
 package { "gcc-multilib":
+  ensure => 'installed',
+}
+
+package { "make":
   ensure => 'installed',
 }
 
