@@ -26,14 +26,12 @@
 ;; given a subdirectory name and a list of decls and strings,
 ;; write the manifest
 (define (write-manifest subdir clauses)
-  (define full-clauses
-    (append clauses common-package-decls))
   (call-with-output-file (build-path here
                                      subdir
                                      "manifests/default.pp") 
     #:exists 'truncate
     (λ (port)
-      (for ([c (in-list full-clauses)])
+      (for ([c (in-list clauses)])
         (displayln
          (cond [(decl? c)   (decl->string c)]
                [(string? c) c]
@@ -68,28 +66,48 @@
 ;; the packages required on all vms
 (define common-packages '(clang nasm gcc-multilib make))
 
+;; the decls required for the racket ppa
+(define racket-decls
+  (list (include 'apt)
+        (decl 'apt::ppa "ppa:plt/racket" '())
+        (package-require 'racket '((require "Apt::Ppa['ppa:plt/racket']")))))
+
 ;; the decls required on all vms
 (define common-package-decls
-  (for/list ([p (in-list common-packages)])
-    (package-require p)))
+  (append
+   racket-decls
+   (for/list ([p (in-list common-packages)])
+     (package-require p))))
+
 
 (define vms
   `(("racket-image"
-     (,(include 'apt)
-      ,(decl 'apt::ppa "ppa:plt/racket" '())
-      ,(package-require 'racket
-                       '((require "Apt::Ppa['ppa:plt/racket']")))
-      ,java-runtime-decl))
-    ("c-c++-image" (,java-runtime-decl))
+     ,(cons java-runtime-decl
+            common-package-decls))
+    ("c-c++-image"
+     ,(cons java-runtime-decl
+            common-package-decls))
     ("java-scala-clojure-image"
-     ,(list java-jdk-decl
-            (package-require 'ant)
-            (package-require 'scala)))
-    ("js-image"     (,java-runtime-decl ,(package-require 'nodejs)))
-    ("python-image" ,(list java-jdk-decl
-                           (package-require 'python3.6)))
-    ("sml-image"    (,java-runtime-decl ,(package-require 'smlnj)))
-    ("ghc-image"    (,java-runtime-decl ,(package-require 'haskell-platform)))))
+     ,(list* java-jdk-decl
+             (package-require 'ant)
+             (package-require 'scala)
+             common-package-decls))
+    ("js-image"
+     ,(list* java-runtime-decl
+             (package-require 'nodejs)
+             common-package-decls))
+    ("python-image"
+     ,(list* java-jdk-decl
+             (package-require 'python3.6)
+             common-package-decls))
+    ("sml-image"
+     ,(list* java-runtime-decl
+             (package-require 'smlnj)
+             common-package-decls))
+    ("ghc-image"
+     ,(list* java-runtime-decl
+             (package-require 'haskell-platform)
+             common-package-decls))))
 
 ;; given a subdirectory name, copy the Vagrantfile into it
 (define (copy-vagrantfile subdir)

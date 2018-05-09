@@ -1,3 +1,7 @@
+class { "java":
+  distribution => 'jre',
+}
+
 include apt
 
 apt::ppa { "ppa:plt/racket":
@@ -6,10 +10,6 @@ apt::ppa { "ppa:plt/racket":
 package { "racket":
   ensure => 'installed',
   require => Apt::Ppa['ppa:plt/racket'],
-}
-
-class { "java":
-  distribution => 'jre',
 }
 
 package { "clang":

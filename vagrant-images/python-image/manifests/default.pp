@@ -4,6 +4,16 @@ package { "python3.6":
   ensure => 'installed',
 }
 
+include apt
+
+apt::ppa { "ppa:plt/racket":
+}
+
+package { "racket":
+  ensure => 'installed',
+  require => Apt::Ppa['ppa:plt/racket'],
+}
+
 package { "clang":
   ensure => 'installed',
 }
