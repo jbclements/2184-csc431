@@ -1,0 +1,10 @@
+fun main () int {
+  int a,b,c,d,e;
+  bool x,y,z;
+  a = 342+77/49;
+  b = 94*a - (2230 + 4);
+  c = b;
+  b = b + a;
+  c = b/3;
+  return c;
+}

@@ -1,0 +1,19 @@
+fun main () int {
+  int x, y, z;
+  x = 13;
+  y = x*4;
+  if (y < x || y == 1) {
+    return -1;
+  } else {
+    z = y-1;
+    if (z < y) {
+      y = y - 14;
+      z = 23;
+    }
+    if (3 > 4 || 7 > 8) {
+      return -1;
+    }
+    return y - z;
+  }
+}
+
