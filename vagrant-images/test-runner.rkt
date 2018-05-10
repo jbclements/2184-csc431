@@ -7,13 +7,36 @@
 (define project-path (build-path here "project"))
 (define testing-path (build-path here "testing"))
 
-;; a test-plan is a list of test-items
+;; a test-plan is a list of test-groups
+
+;; a test group is (cons <group-name> (cons <num-points> <list-of-test-items))
+
 ;; a test-item is a list containing a filename and an expected-result
+
 ;; an expected-result is 'compiletime-error for a file that's expected
 ;; to fail at compile-time, 'runtime-error for a file that's expected
 ;; to fail at runtime, and a string with expected output for a file
 ;; that's expected to succeed
+
 (define test-plan (file->value (build-path testing-path "test-plan.rktd")))
+(define consieuten-exec-path
+  (let ()
+    (define expected-exec-path-file (build-path project-path "consieuten-path"))
+    (define exec-dir
+      (cond [(file-exists? expected-exec-path-file)
+             (define path
+               (build-path project-path
+                           (string-trim (file->string expected-exec-path-file))))
+             
+             path]
+            [else
+             (printf "no 'consieuten-path' file found. Using project directory\n")
+             project-path]))
+    (unless (file-exists? (build-path exec-dir "consieuten"))
+      (error 'consieuten-exec-path
+             "given path to consieuten executable doesn't refer to existing file: ~e"
+             (build-path exec-dir "conseuten")))
+    exec-dir))
 
 
 (define stdout-log (open-output-file
@@ -44,20 +67,33 @@
 (define nonzero? (λ (n) (not (= n 0))))
 (define zero? (λ (n) (= n 0)))
 
+(define subprocess-env
+  (let ()
+    (define new-env
+      (environment-variables-copy (current-environment-variables)))
+    (environment-variables-set!
+     new-env
+     #"CLASSPATH"
+     #"/vagrant/antlr-4.7.1-complete.jar:.")
+    new-env))
+
+(define extra-flags '("-e"))
+
 ;; compile the given file, logging stdout and stderr. return
 ;; the error code
 (define (run-compiler file)
-  (define complete-path (let ([ans (path->complete-path file)])
-                          (printf "complete-path: ~s\n" ans)
-                          ans))
-  (parameterize ([current-directory (build-path here "project")])
+  (printf "testing file: ~v\n" file)
+  (define complete-path (path->complete-path file))
+  (parameterize ([current-directory consieuten-exec-path]
+                 [current-environment-variables subprocess-env])
     (run-with-logging
-     (λ () (system*/exit-code
-            (build-path here "project"
-                           "consieuten")
-            (let ([ans complete-path])
-              (printf "complete-path: ~s\n" ans)
-              ans))))))
+     (λ () (apply
+            system*/exit-code
+            (build-path consieuten-exec-path
+                        "consieuten")
+            (append
+             extra-flags
+             (list complete-path)))))))
 
 ;; run the thunk with stdout and stderr redirected
 (define (run-with-logging thunk)
@@ -75,30 +111,34 @@
 
 ;; test each item
 (define test-results
-  (for/list ([test-item (in-list test-plan)])
-    (match-define (list filename expected) test-item)
-    (define test-input-path (build-path "testing" filename))
-    (fprintf stdout-log "# file: ~v\n" filename)
-    (flush-output stdout-log)
-    (fprintf stderr-log "# file: ~v\n" filename)
-    (flush-output stderr-log)
+  (for/list ([test-group (in-list test-plan)])
+    (append
+     (take test-group 2)
+     (for/list ([test-item (in-list (rest (rest test-group)))])
+       (match-define (list filename expected) test-item)
+       (define test-input-path (build-path "testing" filename))
+       (fprintf stdout-log "# file: ~v\n" filename)
+       (flush-output stdout-log)
+       (fprintf stderr-log "# file: ~v\n" filename)
+       (flush-output stderr-log)
   
-    (match expected
-      ['compiletime-error
-       (check-pred nonzero?
-                   (run-compiler test-input-path))]
-      [(? string? s)
-       (and
-        (check-pred zero? (run-compiler test-input-path))
-        (let ()
-          (match-define (list exit-code out-str)
-            (run-for-stdout (λ () (system*/exit-code
-                                   (build-path here "project"
-                                               "a.out")))))
+       (match expected
+         ['compiler-error
+          (check-pred nonzero?
+                      (run-compiler test-input-path))]
+         [(? string? s)
           (and
-           (check-pred zero? exit-code)
-           (check-equal? (string-trim out-str)
-                         (string-trim s)))))])))
+           (check-pred zero? (run-compiler test-input-path))
+           (let ()
+             (match-define (list exit-code out-str)
+               (parameterize ([current-environment-variables subprocess-env])
+                 (run-for-stdout (λ () (system*/exit-code
+                                        (build-path consieuten-exec-path
+                                                    "a.out"))))))
+             (and
+              (check-pred zero? exit-code)
+              (check-equal? (string-trim out-str)
+                            (string-trim s)))))])))))
 
 (fprintf stdout-log
          "# final result: \n~a\n" test-results)

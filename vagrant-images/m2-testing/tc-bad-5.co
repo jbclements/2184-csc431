@@ -1,0 +1,46 @@
+
+fun a (int x, (int -> int) y, int c) int {
+  bool d;
+  int z;
+  fun a (int f, int y) int {
+     fun e() int { return 2; }
+     if (y) {
+       f = f + y;
+     } else {
+       f = f - y;
+     }
+     return f * e();
+  }
+  fun e(int f) int {
+    return zz(f) + b(2);
+    return f; # dead code...
+  }
+  fun b(int y) int {
+    return y * 92;
+  }
+  if (a(x,4) < y(4)) {
+    x = x + (223 * 3 - 2);
+  } else {
+    x = x + (223 * 2 - 29);
+  }
+  return x + e(9);
+}
+
+fun b(int x) int {
+  return x + 19;
+}
+
+fun c(int x) int {
+  return x + 191444;
+}
+
+fun zz(int x) int {
+  return x * 2;
+}
+
+fun main() int {
+  fun abc(int x) int {
+    return x * 3;
+  }
+  return a(2,abc,38) - c(3);
+}
