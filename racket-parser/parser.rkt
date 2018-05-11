@@ -26,12 +26,13 @@
 ;; token definitions:
 
 (define-empty-tokens delimiters
-  (EOF LBRACK RBRACK LPAREN RPAREN COMMA SEMICOLON))
+  (EOF LBRACK RBRACK LPAREN RPAREN COMMA SEMICOLON DOT))
 (define-empty-tokens special-operators
   (PLUS MINUS TIMES DIVIDE GETS ARROW
         EQUALS NOT-EQUALS GT GEQ LT LEQ NOT AND OR))
 (define-empty-tokens keywords
-  (FUN RETURN INT BOOL IF WHILE ELSE NEW))
+  (FUN RETURN INT BOOL IF WHILE ELSE NEW
+       STRUCT))
 (define-tokens regular (INTLIT  BOOL-LIT ID))
 
 ;; here's the lexer:
@@ -76,6 +77,8 @@
    ["!" (token-NOT)]
    
    ["=" (token-GETS)]
+
+   ["." (token-DOT)]
    
    [(eof) (token-EOF)]
 
@@ -97,6 +100,7 @@
     [(true) (token-BOOL-LIT #t)]
     [(false) (token-BOOL-LIT #f)]
     [(new) (token-NEW)]
+    [(struct) (token-STRUCT)]
     [else (token-ID str)]))
 
 ;; strip the opening and closing parens, eliminate backslashes
@@ -121,12 +125,26 @@
     (left GT GEQ LT LEQ)
     (left PLUS MINUS)
     (left TIMES DIVIDE)
-    (nonassoc NOT))
+    (nonassoc NOT)
+    (left DOT)
+    (nonassoc NEW))
 
    (grammar
     [prog
-     [(functions) $1]
+     [(struct-decls functions) (list $1 $2)]
      ]
+    [struct-decls
+     [() '()]
+     [(struct-decl struct-decls) (cons $1 $2)]]
+    [struct-decl
+     [(STRUCT ID LBRACK field-decls RBRACK SEMICOLON)
+      (list 'struct-decl (string->symbol $2) $4)]]
+    [field-decls
+     [() '()]
+     [(field-decl field-decls) (cons $1 $2)]]
+    [field-decl
+     [(type ID SEMICOLON) (list (string->symbol $2) $1)]]
+    
     [functions
      [() '()]
      [(function functions) (cons $1 $2)]]
@@ -147,7 +165,8 @@
     [type
      [(INT) 'int]
      [(BOOL) 'bool]
-     [(LPAREN types ARROW type RPAREN) (list '-> $2 $4)]]
+     [(LPAREN types ARROW type RPAREN) (list '-> $2 $4)]
+     [(STRUCT ID) (list 'struct (string->symbol $2))]]
     [types
      [() '()]
      [(type types) (cons $1 $2)]]
@@ -183,7 +202,8 @@
      [(LBRACK stmts RBRACK) $2]]
 
     [lvalue
-     [(ID) (list 'lvvar (string->symbol $1))]]
+     [(ID) (list 'lvvar (string->symbol $1))]
+     [(lvalue DOT ID) (list 'lvref $1 (string->symbol $3))]]
     [expr
      [(ID) (list 'var (string->symbol $1))]
      [(ID LPAREN call-args RPAREN)
@@ -210,6 +230,11 @@
 
      [(expr AND expr) (list 'op 'and $1 $3)]
      [(expr OR expr)  (list 'op 'or $1 $3)]
+
+     [(expr DOT ID) (list 'ref $1
+                          (string->symbol $3))]
+
+     [(NEW ID) (list 'new (string->symbol $2))]
 
      
      
@@ -366,36 +391,63 @@ ab
            'LPAREN  (token-INTLIT 4)  'RPAREN  'SEMICOLON  'RBRACK
            'RETURN  (token-ID "i1")  'LPAREN  (token-ID "b")
            'RPAREN  'SEMICOLON  'RBRACK)))
-  
-  (check-equal?
+
+    
+
+   (check-equal? (string->tree "struct zig{struct zag a; struct bonzo bb; int a;};")
+                 '(((struct-decl zig ((a (struct zag))
+                                      (bb (struct bonzo))
+                                      (a int))))
+                   ()))
+
+    (check-equal? (string->tree
+                   "fun main() int {x.y.z = p.d; return q;}")
+                  `(()
+                    ((function main () int
+                               ()
+                               ()
+                               ((gets (lvref (lvref (lvvar x) y) z)
+                                      (ref (var p) d))
+                                (return-expr (var q)))))))
+
+    (check-equal? (string->tree
+                   "fun main() int {return new zzog;}")
+                  `(()
+                    ((function main () int
+                               ()
+                               ()
+                               ((return-expr (new zzog)))))))
+    
+    (check-equal?
    (string->tree "fun main() int {
   int x, z, oth1; # this is a commont... oops comment
   y=34;
   return y+(k*4);
 }")
-   '((function main () int
+   '(()
+     ((function main () int
                ((vardecl int (x z oth1)))
                ()
                ((gets (lvvar y) 34)
-                (return-expr (op + (var y) (op * (var k) 4)))))))
+                (return-expr (op + (var y) (op * (var k) 4))))))))
 
     (check-equal?
      (string->tree "fun main() int {
   return 3 / 4;
 }")
-     '((function main () int () ()
-                 ((return-expr (op / 3 4))))))
+     '(()((function main () int () ()
+                 ((return-expr (op / 3 4)))))))
 
     (check-equal?
      (string->tree "fun main() int {
   return true && !false;
 }")
-     '((function main () int () ()
-                 ((return-expr (op and #t (unop not #f)))))))
+     '(()((function main () int () ()
+                 ((return-expr (op and #t (unop not #f))))))))
 
     (check-equal?
      (string->tree test-file-string)
-     '((function abc ((x int) (y (-> (int) int))
+     '(()((function abc ((x int) (y (-> (int) int))
                               (oeu (-> () (-> () int))))
                  (-> (bool) bool)
                  () ()
@@ -419,7 +471,7 @@ ab
                              (return-expr (op + (var c) (var d)))))
                   (function b () (-> (int) int) () ()
                             ((return-expr (call (var b) (4))))))
-                 ((return-expr (call (var i1) ((var b)))))))))
+                 ((return-expr (call (var i1) ((var b))))))))))
 
   (run-tests the-test-suite))
 
