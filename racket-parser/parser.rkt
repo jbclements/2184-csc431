@@ -31,8 +31,8 @@
   (PLUS MINUS TIMES DIVIDE GETS ARROW
         EQUALS NOT-EQUALS GT GEQ LT LEQ NOT AND OR))
 (define-empty-tokens keywords
-  (FUN RETURN INT BOOL IF WHILE ELSE NEW
-       STRUCT))
+  (FUN RETURN INT BOOL IF WHILE ELSE NEW DELETE
+       STRUCT PRINT ENDL READ))
 (define-tokens regular (INTLIT  BOOL-LIT ID))
 
 ;; here's the lexer:
@@ -101,6 +101,10 @@
     [(false) (token-BOOL-LIT #f)]
     [(new) (token-NEW)]
     [(struct) (token-STRUCT)]
+    [(print) (token-PRINT)]
+    [(endl) (token-ENDL)]
+    [(read) (token-READ)]
+    [(delete) (token-DELETE)]
     [else (token-ID str)]))
 
 ;; strip the opening and closing parens, eliminate backslashes
@@ -194,9 +198,14 @@
       (list 'if $3 $5)]
      [(IF LPAREN expr RPAREN block ELSE block)
       (list 'if-else $3 $5 $7)]
-     [(block) (list 'block $1)]
+     [(WHILE LPAREN expr RPAREN block)
+      (list 'while $3 $5)]
+     [(lvalue GETS READ SEMICOLON) (list 'gets $1 '(read))]
+     [(PRINT expr SEMICOLON) (list 'print $2)]
+     [(PRINT expr ENDL SEMICOLON) (list 'println $2)]
+     [(DELETE expr SEMICOLON) (list 'delete $2)]
      [(RETURN expr SEMICOLON) (list 'return-expr $2)]
-     [(RETURN SEMICOLON) (list 'return-void)]]
+     #;[(RETURN SEMICOLON) (list 'return-void)]]
 
     [block
      [(LBRACK stmts RBRACK) $2]]
@@ -297,8 +306,8 @@ fun main () int {
   int g, h;
   fun i1() bool {
     if (x < 14 && z > (-y) + 444) {
-      {c = 12;
-       a(4);}
+      c = 12;
+       a(4);
       d = c+1;
     } else {
       if (y + 9 > 2) {
@@ -376,9 +385,9 @@ ab
            'LPAREN  (token-ID "x")  'LT  (token-INTLIT 14)  'AND
            (token-ID "z")  'GT  'LPAREN  'MINUS  (token-ID "y")
            'RPAREN  'PLUS  (token-INTLIT 444)  'RPAREN  'LBRACK
-           'LBRACK  (token-ID "c")  'GETS  (token-INTLIT 12)
+             (token-ID "c")  'GETS  (token-INTLIT 12)
            'SEMICOLON  (token-ID "a")  'LPAREN  (token-INTLIT 4)
-           'RPAREN  'SEMICOLON  'RBRACK  (token-ID "d")  'GETS
+           'RPAREN  'SEMICOLON  (token-ID "d")  'GETS
            (token-ID "c")  'PLUS  (token-INTLIT 1)  'SEMICOLON
            'RBRACK  'ELSE  'LBRACK  'IF  'LPAREN  (token-ID "y")
            'PLUS  (token-INTLIT 9)  'GT  (token-INTLIT 2)  'RPAREN
@@ -411,12 +420,21 @@ ab
                                 (return-expr (var q)))))))
 
     (check-equal? (string->tree
-                   "fun main() int {return new zzog;}")
+                   "fun main() int {
+p = read;
+print p;
+print p endl;
+delete z;
+return new zzog;}")
                   `(()
                     ((function main () int
                                ()
                                ()
-                               ((return-expr (new zzog)))))))
+                               ((gets (lvvar p) (read))
+                                (print (var p))
+                                (println (var p))
+                                (delete (var z))
+                                (return-expr (new zzog)))))))
     
     (check-equal?
    (string->tree "fun main() int {
@@ -437,6 +455,15 @@ ab
 }")
      '(()((function main () int () ()
                  ((return-expr (op / 3 4)))))))
+
+    (check-equal?
+     (string->tree "fun main() int {
+while (x < z) {
+x = x + 1;
+}}")
+     '(()((function main () int () ()
+                    ((while (op < (var x) (var z))
+                       ((gets (lvvar x) (op + (var x) 1)))))))))
 
     (check-equal?
      (string->tree "fun main() int {
@@ -461,8 +488,8 @@ ab
                                   (op > (var z)
                                       (op + (unop - (var y))
                                           444)))
-                              ((block ((gets (lvvar c) 12)
-                                       (call (var a) (4))))
+                              ((gets (lvvar c) 12)
+                               (call (var a) (4))
                                (gets (lvvar d) (op + (var c) 1)))
                               ((if (op > (op + (var y) 9)
                                        2)
