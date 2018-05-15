@@ -8,6 +8,10 @@ package { "scala":
   ensure => 'installed',
 }
 
+package { "leiningen":
+  ensure => 'installed',
+}
+
 include apt
 
 apt::ppa { "ppa:plt/racket":

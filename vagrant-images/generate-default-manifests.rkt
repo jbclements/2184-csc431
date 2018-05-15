@@ -91,6 +91,7 @@
      ,(list* java-jdk-decl
              (package-require 'ant)
              (package-require 'scala)
+             (package-require 'leiningen)
              common-package-decls))
     ("js-image"
      ,(list* java-runtime-decl
