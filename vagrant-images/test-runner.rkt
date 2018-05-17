@@ -7,6 +7,9 @@
 (define project-path (build-path here "project"))
 (define testing-path (build-path here "testing"))
 
+;; extra flags required by a nonconforming compiler:
+(define extra-flags '())
+
 ;; a test-plan is a list of test-groups
 
 ;; a test group is (cons <group-name> (cons <num-points> <list-of-test-items))
@@ -37,6 +40,9 @@
              "given path to consieuten executable doesn't refer to existing file: ~e"
              (build-path exec-dir "conseuten")))
     exec-dir))
+
+(define generated-executable-path
+  (build-path consieuten-exec-path "a.out"))
 
 
 (define stdout-log (open-output-file
@@ -77,8 +83,6 @@
      #"/vagrant/antlr-4.7.1-complete.jar:.")
     new-env))
 
-(define extra-flags '("-e"))
-
 ;; compile the given file, logging stdout and stderr. return
 ;; the error code
 (define (run-compiler file)
@@ -87,7 +91,10 @@
   (parameterize ([current-directory consieuten-exec-path]
                  [current-environment-variables subprocess-env])
     (run-with-logging
-     (λ () (apply
+     (λ ()
+       (when (file-exists? generated-executable-path)
+         (delete-file generated-executable-path))
+       (apply
             system*/exit-code
             (build-path consieuten-exec-path
                         "consieuten")
@@ -133,8 +140,7 @@
              (match-define (list exit-code out-str)
                (parameterize ([current-environment-variables subprocess-env])
                  (run-for-stdout (λ () (system*/exit-code
-                                        (build-path consieuten-exec-path
-                                                    "a.out"))))))
+                                        generated-executable-path)))))
              (and
               (check-pred zero? exit-code)
               (check-equal? (string-trim out-str)
