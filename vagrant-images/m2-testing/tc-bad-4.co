@@ -13,7 +13,7 @@ fun a (int x, (int -> int) y, int c) int {
   }
   fun e(int f) int {
     return zz(f) + b(2);
-    return f; # dead code...
+    return f; 
   }
   fun b(int y) int {
     ppo = 94;
