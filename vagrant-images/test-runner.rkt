@@ -21,6 +21,8 @@
 ;; to fail at runtime, and a string with expected output for a file
 ;; that's expected to succeed
 
+(define compiler-name "consieuten")
+
 (define test-plan (file->value (build-path testing-path "test-plan.rktd")))
 (define consieuten-exec-path
   (let ()
@@ -34,11 +36,12 @@
              path]
             [else
              (printf "no 'consieuten-path' file found. Using project directory\n")
-             project-path]))
-    (unless (file-exists? (build-path exec-dir "consieuten"))
+             project-path]))i
+    (define compiler-file (build-path exec-dir compiler-name))
+    (unless (file-exists? compiler-file)
       (error 'consieuten-exec-path
              "given path to consieuten executable doesn't refer to existing file: ~e"
-             (build-path exec-dir "conseuten")))
+             compiler-file))
     exec-dir))
 
 (define generated-executable-path
@@ -97,7 +100,7 @@
        (apply
             system*/exit-code
             (build-path consieuten-exec-path
-                        "consieuten")
+                        compiler-name)
             (append
              extra-flags
              (list complete-path)))))))
