@@ -59,6 +59,14 @@
 (define java-runtime-decl
   (decl 'class 'java '((distribution "'jre'"))))
 
+;; the decls for the python 3.6 +
+;; total fail, package has all kinds of strange conflicts.
+#;(define python-decls
+  (list (decl 'class "python"
+              '())
+        (decl 'python::pip "antlr"
+              '((pkgname "antlr4-python3-runtime")))))
+
 ;; the decl for the whole java jdk
 (define java-jdk-decl
   (include 'java))
@@ -85,8 +93,9 @@
      ,(cons java-runtime-decl
             common-package-decls))
     ("c-c++-image"
-     ,(cons java-runtime-decl
-            common-package-decls))
+     ,(list* java-runtime-decl
+             (package-require 'bison)
+             common-package-decls))
     ("java-scala-clojure-image"
      ,(list* java-jdk-decl
              (package-require 'ant)
@@ -94,19 +103,23 @@
              (package-require 'leiningen)
              common-package-decls))
     ("js-image"
-     ,(list* java-runtime-decl
-             (package-require 'nodejs)
+     ,(list* java-jdk-decl
+             (package-require 'npm)
              common-package-decls))
     ("python-image"
      ,(list* java-jdk-decl
              (package-require 'python3.6)
-             common-package-decls))
+             (package-require 'python3-pip)
+             (append
+              ;python-decls
+              common-package-decls)))
     ("sml-image"
      ,(list* java-runtime-decl
              (package-require 'smlnj)
+             (package-require 'mlton)
              common-package-decls))
     ("ghc-image"
-     ,(list* java-runtime-decl
+     ,(list* java-jdk-decl
              (package-require 'haskell-platform)
              common-package-decls))))
 

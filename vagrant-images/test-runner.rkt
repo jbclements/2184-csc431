@@ -36,7 +36,7 @@
              path]
             [else
              (printf "no 'consieuten-path' file found. Using project directory\n")
-             project-path]))i
+             project-path]))
     (define compiler-file (build-path exec-dir compiler-name))
     (unless (file-exists? compiler-file)
       (error 'consieuten-exec-path

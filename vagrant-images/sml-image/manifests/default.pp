@@ -6,6 +6,10 @@ package { "smlnj":
   ensure => 'installed',
 }
 
+package { "mlton":
+  ensure => 'installed',
+}
+
 include apt
 
 apt::ppa { "ppa:plt/racket":

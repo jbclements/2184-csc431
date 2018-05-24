@@ -2,6 +2,10 @@ class { "java":
   distribution => 'jre',
 }
 
+package { "bison":
+  ensure => 'installed',
+}
+
 include apt
 
 apt::ppa { "ppa:plt/racket":

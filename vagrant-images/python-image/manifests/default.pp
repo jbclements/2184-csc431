@@ -4,6 +4,10 @@ package { "python3.6":
   ensure => 'installed',
 }
 
+package { "python3-pip":
+  ensure => 'installed',
+}
+
 include apt
 
 apt::ppa { "ppa:plt/racket":

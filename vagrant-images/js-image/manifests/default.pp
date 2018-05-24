@@ -1,8 +1,6 @@
-class { "java":
-  distribution => 'jre',
-}
+include java
 
-package { "nodejs":
+package { "npm":
   ensure => 'installed',
 }
 

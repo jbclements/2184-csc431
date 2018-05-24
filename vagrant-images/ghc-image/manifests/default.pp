@@ -1,6 +1,4 @@
-class { "java":
-  distribution => 'jre',
-}
+include java
 
 package { "haskell-platform":
   ensure => 'installed',
