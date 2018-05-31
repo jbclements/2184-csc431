@@ -49,15 +49,20 @@
 ;; given lhs and rhs strings, return a declaration interior line
 (define (interior-line-string pr)
   (match-define (list lhs rhs) pr)
-  (string-append "  " (symbol->string lhs) " => " rhs ","))
+  (define rhs-str
+    (match rhs
+      [(list 'str (? string? s)) (~a "'" s "'")]
+      [(? string? s) s]))
+  (string-append "  " (symbol->string lhs) " => " rhs-str ","))
+
 
 ;; given a name and lines, return a package require decl
 (define (package-require name [lines '()])
-  (decl 'package name (cons '(ensure "'installed'") lines)))
+  (decl 'package name (cons '(ensure (str "installed")) lines)))
 
 ;; the decl for the java runtime
 (define java-runtime-decl
-  (decl 'class 'java '((distribution "'jre'"))))
+  (decl 'class 'java '((distribution (str "jre")))))
 
 ;; the decls for the python 3.6 +
 ;; total fail, package has all kinds of strange conflicts.
@@ -80,6 +85,19 @@
         (decl 'apt::ppa "ppa:plt/racket" '())
         (package-require 'racket '((require "Apt::Ppa['ppa:plt/racket']")))))
 
+(define scala-decls
+  (list (include 'apt)
+        (decl 'apt::source
+              "sbt_source"
+              '((location (str "https://dl.bintray.com/sbt/debian"))
+                (release (str ""))
+                (repos (str "/"))
+                (key "{ 'id' => '2EE0EA64E40A89B84B2DF73499E82A75642AC823',
+   'server' => 'keyserver.ubuntu.com' }")))
+        (package-require 'sbt
+                         '((require "Apt::Source['sbt_source']")))
+        (package-require 'scala)))
+
 ;; the decls required on all vms
 (define common-package-decls
   (append
@@ -97,11 +115,11 @@
              (package-require 'bison)
              common-package-decls))
     ("java-scala-clojure-image"
-     ,(list* java-jdk-decl
-             (package-require 'ant)
-             (package-require 'scala)
-             (package-require 'leiningen)
-             common-package-decls))
+     ,(append (list java-jdk-decl)
+              scala-decls
+              (list (package-require 'ant)
+                    (package-require 'leiningen))
+              common-package-decls))
     ("js-image"
      ,(list* java-jdk-decl
              (package-require 'npm)
