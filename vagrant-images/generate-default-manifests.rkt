@@ -141,16 +141,31 @@
              (package-require 'haskell-platform)
              common-package-decls))))
 
+
+
 ;; given a subdirectory name, copy the Vagrantfile into it
 (define (copy-vagrantfile subdir)
   (copy-file (build-path here "Vagrantfile")
              (build-path here subdir "Vagrantfile")
              #t))
 
+;; given a subdirectory name, copy the test-runner and the
+;; m4 test files into it
+(define (copy-test-files subdir test-set)
+  (define tgt (build-path here subdir))
+  (define (squish srcname tgtname)
+    (delete-directory/files (build-path tgt tgtname)
+                            #:must-exist? #f)
+    (copy-directory/files (build-path here srcname)
+                          (build-path tgt tgtname)))
+  (squish "test-runner.rkt" "test-runner.rkt")
+  (squish "m4-tests" "testing"))
+
 (for ([pr (in-list vms)])
   (match-define (list name clauses) pr)
-  (copy-vagrantfile (first pr))
-  (write-manifest (first pr) (second pr)))
+  (copy-vagrantfile name)
+  (write-manifest name clauses)
+  (copy-test-files name "m4-tests"))
 
 
 
