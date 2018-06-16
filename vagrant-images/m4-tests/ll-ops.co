@@ -1,0 +1,30 @@
+struct intnode {
+  int fst;
+  struct intnode rst;
+};
+
+fun len(struct intnode l) int {
+  if (l == null) {
+    return 0;
+  } else {
+    return 1 + len(l.rst);
+  }
+}
+
+fun cons(int f, struct intnode r) struct intnode {
+  struct intnode result;
+  result = new intnode;
+  result.fst = f;
+  result.rst = r;
+  return result;
+} 
+
+fun main () int {
+   struct intnode l;
+   l = cons(3,cons(4, cons (5, null)));
+   if (len(l) == 3) {
+     return 144;
+   } else {
+     return 0;
+   }
+}

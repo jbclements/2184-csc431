@@ -1,0 +1,136 @@
+struct bnode {
+  int i;
+  struct bnode left;
+  struct bnode right;
+};
+
+# constructor for a node
+fun bcons(int i, struct bnode l, struct bnode r) struct bnode {
+  struct bnode result;
+  result = new bnode;
+  result.i = i;
+  result.left = l;
+  result.right = r;
+  return result;
+}
+
+# insert a number into a sorted binary tree
+# (put equal #s to the left)
+fun insert(struct bnode l, int i) struct bnode {
+  if (l == null) {
+    return bcons(i,null,null);
+  } else {
+    if (i <= l.i) {
+      return bcons(l.i,insert(l.left,i),l.right);
+    } else {
+      return bcons(l.i,l.left,insert(l.right,i));
+    }
+  }
+}
+
+# visit each node, apply an int->int
+fun visit(struct bnode l,
+          (int struct bnode struct bnode -> int) vnode,
+          (-> int) vnull) int {
+  if (l == null) {
+    return vnull();
+  } else {
+    return vnode(l.i,l.left,l.right);
+  }
+}
+
+# an in-order printer
+fun inOrderPrintV1(int i, struct bnode l, struct bnode r) int {
+  int dontcare;
+  dontcare = visit(l,inOrderPrintV1,ignore);
+  print i;
+  dontcare = visit(r,inOrderPrintV1,ignore);
+  return 0;
+}
+
+fun ignore () int {
+  return 0;
+}
+
+fun main () int {
+  struct bnode t;
+  int dontcare;
+  t = null;
+  t = insert(t,3);
+  t = insert(t,5);
+  t = insert(t,7);
+  t = insert(t,9);
+  t = insert(t,3);
+  t = insert(t,4);
+  t = insert(t,4);
+  t = insert(t,8);
+  t = insert(t,4);
+  t = insert(t,0);
+  t = insert(t,5);
+  t = insert(t,2);
+  t = insert(t,1);
+  t = insert(t,0);
+  t = insert(t,3);
+  t = insert(t,0);
+  t = insert(t,5);
+  t = insert(t,7);
+  t = insert(t,2);
+  t = insert(t,9);
+  t = insert(t,7);
+  t = insert(t,2);
+  t = insert(t,1);
+  t = insert(t,9);
+  t = insert(t,2);
+  t = insert(t,2);
+  t = insert(t,4);
+  t = insert(t,5);
+  t = insert(t,0);
+  t = insert(t,9);
+  t = insert(t,5);
+  t = insert(t,2);
+  t = insert(t,8);
+  t = insert(t,0);
+  t = insert(t,7);
+  t = insert(t,2);
+  t = insert(t,3);
+  t = insert(t,9);
+  t = insert(t,0);
+  t = insert(t,7);
+  t = insert(t,8);
+  t = insert(t,6);
+  t = insert(t,0);
+  t = insert(t,5);
+  t = insert(t,4);
+  t = insert(t,3);
+  t = insert(t,1);
+  t = insert(t,2);
+  t = insert(t,1);
+  t = insert(t,5);
+  t = insert(t,4);
+  t = insert(t,8);
+  t = insert(t,2);
+  t = insert(t,5);
+  t = insert(t,9);
+  t = insert(t,4);
+  t = insert(t,8);
+  t = insert(t,0);
+  t = insert(t,8);
+  t = insert(t,6);
+  t = insert(t,8);
+  t = insert(t,1);
+  t = insert(t,5);
+  t = insert(t,1);
+  t = insert(t,5);
+  t = insert(t,4);
+  t = insert(t,5);
+  t = insert(t,4);
+  t = insert(t,2);
+  t = insert(t,0);
+  t = insert(t,3);
+  t = insert(t,3);
+  t = insert(t,5);
+  t = insert(t,8);
+  t = insert(t,2);
+  dontcare = visit(t,inOrderPrintV1,ignore);
+  return 0;
+}

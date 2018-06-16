@@ -1,0 +1,30 @@
+struct a {
+  int a;
+  bool b;
+  struct zz c;
+  struct a d;
+};
+
+struct zz {
+  int b;
+  bool a;
+};
+
+fun main () int {
+  struct a a1,a2;
+  struct zz zz1, zz2;
+  int p;
+  bool q;
+
+  a1 = new a;
+  zz1 = null;
+  p = 27;
+  q = !false;
+  a1.a = p;
+  a1.b = (3 > 4);
+  a1.c = zz1;
+  zz2 = new zz;
+  a1.c = zz2;
+  a1.d = a1;
+  return a1.a;
+}

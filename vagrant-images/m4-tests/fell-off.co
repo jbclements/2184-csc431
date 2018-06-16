@@ -1,0 +1,12 @@
+# this function contains a return along each path, but it's not obvious.
+fun main() int {
+  if (3 < 4) { # true
+    if (! true) { # false
+      return 3;
+    } else {
+      return 4; # returns 4
+    }
+  } else {
+    return 3;
+  }
+}

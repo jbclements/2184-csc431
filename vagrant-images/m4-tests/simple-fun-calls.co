@@ -1,0 +1,12 @@
+fun main () int {
+  return f1(1,2,3,4,5,6,7,8,9,10,11,12);
+}
+
+fun f1(int a, int b, int c, int d, int e, int f, int g, int h,
+      int i, int j, int k, int l) int {
+  return g1(e,b,k) + g1(l,i,a) + c + d + f + g + h + j;
+}
+
+fun g1(int q, int r, int s) int {
+  return 3 + q + 4 * r + 5 * s;
+}

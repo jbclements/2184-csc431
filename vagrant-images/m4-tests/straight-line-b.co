@@ -1,0 +1,6 @@
+fun main () int {
+  int a, b;
+  a = 7;
+  b = a * 8;
+  return b;
+}

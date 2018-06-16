@@ -1,0 +1,6 @@
+fun main () int {
+  int x, y;
+  x = (3 * 4) - (2 * 9);
+  y = (-2 * x) - (x/x);
+  return y;
+}

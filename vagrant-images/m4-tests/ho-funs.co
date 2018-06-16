@@ -1,0 +1,15 @@
+fun apply((int int -> int) f, int a, int b) int {
+  return f(b,2*a);
+}
+
+fun add(int x, int y) int {
+  return x + y;
+}
+
+fun mult(int x, int y) int {
+  return x * y;
+}
+
+fun main () int {
+  return apply(mult,apply(add,2,3),apply(mult,4,-7));
+}

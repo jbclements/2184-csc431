@@ -1,0 +1,45 @@
+fun curry3 ((int int int -> int) f) (int -> (int -> (int -> int))) {
+  fun a (int x) (int -> (int -> int)) {
+    fun b (int y) (int -> int) {
+      fun c (int z) int {
+        return f(x,y,z);
+      }
+      return c;
+    }
+    return b;
+  }
+  return a;
+}
+
+fun initfun(int a, int b, int c) int {
+  print a;
+  print b;
+  print c endl;
+  return 0;
+}
+
+fun applyOne((int -> (int -> (int -> int))) f) int {
+  int dc;
+  dc = applyTwo(f(2));
+  dc = applyTwo(f(4));
+  return 0;
+}
+
+fun applyTwo((int -> (int -> int)) f) int {
+  int dc;
+  dc = applyThree(f(3));
+  dc = applyThree(f(6));
+  return 0;
+}
+
+fun applyThree((int -> int) f) int {
+  int dc;
+  dc = f(4);
+  dc = f(8);
+  return 0;
+}
+
+
+fun main() int {
+  return applyOne(curry3(initfun));
+}

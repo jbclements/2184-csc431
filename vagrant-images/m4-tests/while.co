@@ -1,0 +1,28 @@
+# does y divide x evenly?
+fun divides (int x, int y) bool {
+  int div;
+  div = x / y;
+  return (y * div == x);
+}
+
+# is x > 0 and a prime number?
+fun isPrime (int x) bool {
+  int i;
+  i = 2;
+  if (x <= 1) {return false;}
+  if (x == 2) {return true;}
+  while (i < x) {
+    if (divides(x,i)) {return false;}
+    i = i + 1;
+  }
+  return true;
+}
+
+fun main() int{
+  if (!isPrime(1) && isPrime(2) && isPrime(3) && !isPrime(4)
+    && isPrime(5) && !isPrime(6) && isPrime(23) && !isPrime(24)) {
+    return 1;
+  } else {
+    return 0;
+  }
+}

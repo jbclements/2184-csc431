@@ -1,0 +1,5 @@
+fun main () int {
+  int p;
+  p = read;
+  return p * 10;
+}

@@ -1,0 +1,10 @@
+fun makegetter(int x) (-> int) {
+  fun getx () int {return x;}
+  return getx;
+}
+
+fun main() int {
+  (-> int) getter;
+  getter = makegetter(1234);
+  return getter();
+}

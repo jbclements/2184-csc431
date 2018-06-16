@@ -1,0 +1,6 @@
+fun main () int {
+  print 42;
+  print 221;
+  print 2 endl;
+  return 0;
+}

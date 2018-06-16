@@ -1,0 +1,41 @@
+# dispatch fn
+fun dispatch (int a, bool b, int c) int {
+  int newC, rem;
+  if (c == 0) {
+    return 0;
+  } else {
+    if (b) {
+      c = c - 1;
+    }
+    rem = a - (a / 3) * 3;
+    if (rem == 0) {
+      return firstfun(a,c,b);
+    } else {
+      if (rem == 1) {
+        return secondfun(a,c,b);
+      } else {
+        return thirdfun(a,c,b);
+      }
+    }
+  }
+}
+
+fun firstfun(int x, int y, bool z) int {
+  return 4 + dispatch(x-1,z,y);
+}
+
+fun secondfun(int x, int y, bool z) int {
+  if (x < 10) {
+    return dispatch(x-1,true,6);
+  } else {
+    return 1 + dispatch(x-1,z,y);
+  }
+}
+
+fun thirdfun(int x, int y, bool z) int {
+  return 12 + dispatch(x-1,z,y);
+}
+
+fun main() int {
+  return dispatch(47,false,100);
+}

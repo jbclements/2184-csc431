@@ -1,0 +1,39 @@
+struct node {
+ int fst;
+ struct node rst;
+};
+
+# construct a new node
+fun cons(int fst, struct node rst) struct node {
+  struct node n;
+  n = new node;
+  n.fst = fst;
+  n.rst = rst;
+  return n;
+}
+
+# return the largest element of a list
+fun largest(struct node l) int {
+    if (l.rst == null) {
+       return l.fst;
+    } else {
+      return max(l.fst,largest(l.rst));
+    }
+}
+
+fun max(int a, int b) int {
+    if (a > b) {
+       return a;
+    }  else {
+       return b;
+    }
+}
+
+fun main () int {
+  struct node l;
+
+  l = cons(3,cons(4,cons(19,cons(2,null))));
+
+  return largest(l); # should be 19
+}
+  

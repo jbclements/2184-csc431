@@ -1,0 +1,15 @@
+fun main () int {
+  int a, sum;
+  bool done;
+  done = false;
+  sum = 0;
+  while (!done) {
+    a = read;
+    sum = sum + a;
+    if (a == 0) {
+      done = true;
+    }
+  }
+  print sum endl;
+  return 0;
+}
