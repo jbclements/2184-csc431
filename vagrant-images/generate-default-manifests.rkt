@@ -132,7 +132,7 @@
               ;python-decls
               common-package-decls)))
     ("sml-image"
-     ,(list* java-runtime-decl
+     ,(list* java-jdk-decl
              (package-require 'smlnj)
              (package-require 'mlton)
              common-package-decls))

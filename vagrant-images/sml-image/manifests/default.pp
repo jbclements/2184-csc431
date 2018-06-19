@@ -1,6 +1,4 @@
-class { "java":
-  distribution => 'jre',
-}
+include java
 
 package { "smlnj":
   ensure => 'installed',
