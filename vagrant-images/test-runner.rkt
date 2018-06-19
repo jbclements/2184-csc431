@@ -4,11 +4,15 @@
 
 (define-runtime-path here ".")
 
-(define project-path (build-path here #;"project"))
-(define testing-path (build-path here "examples/m4-tests" #;"testing"))
+(define project-path (build-path here "project"))
+(define testing-path (build-path here "testing"))
+
+;; number of seconds to wait before concluding that
+;; a test has failed
+(define MAXWAIT 30)
 
 ;; extra flags required by a nonconforming compiler:
-(define extra-flags '("-O0"))
+(define extra-flags '(#;"-O0"))
 
 ;; a test-plan is a list of test-groups
 
@@ -111,13 +115,29 @@
                  [current-error-port stderr-log])
     (thunk)))
 
-;; run the thunk, return both result of thunk and stdout produced
+;; run the thunk, return both result of thunk and stdout produced,
+;; or #f if the process timed out.
 (define (run-for-stdout thunk)
-  (define out-str (open-output-string))
-  (list (parameterize ([current-output-port out-str]
-                       [current-error-port stderr-log])
-          (thunk))
-        (get-output-string out-str)))
+  (define ch (make-channel))
+  (define executable-thread
+    (thread
+     (λ ()
+       (define out-str (open-output-string))
+       (channel-put
+        ch
+        (list (parameterize ([current-output-port out-str]
+                             [current-error-port stderr-log])
+                (thunk))
+              (get-output-string out-str))))))
+  (or
+   (sync/timeout MAXWAIT ch)
+   (begin
+     (fprintf stderr-log
+              "timeout... program didn't halt after ~v seconds\n"
+              MAXWAIT)
+     ;; this does *not* kill the subprocess...
+     (kill-thread executable-thread)
+     #f)))
 
 
 ;; run one test
@@ -128,16 +148,19 @@
   (and
    (check-pred zero? (run-compiler source-file))
    (let ()
-     (match-define (list exit-code out-str)
+     (define run-result
        (parameterize ([current-input-port input-port]
                       [current-environment-variables subprocess-env])
          (run-for-stdout (λ () (system*/exit-code
                                 generated-executable-path)))))
-     (when maybe-input (close-input-port input-port))
-     (and
-      (check-pred zero? exit-code)
-      (check-equal? (string-trim out-str)
-                    (string-trim expected-out-str))))))
+     (match run-result
+       [#f #f]
+       [(list exit-code out-str)
+        (when maybe-input (close-input-port input-port))
+        (and
+         (check-pred zero? exit-code)
+         (check-equal? (string-trim out-str)
+                       (string-trim expected-out-str)))]))))
 
 ;; test each item
 (define test-results
